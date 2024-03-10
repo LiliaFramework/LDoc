@@ -129,35 +129,37 @@ function html.generate_output(ldoc, args, project)
    -- from the 'modules' etc directories. If we are in one of those directories,
    -- then linking to another kind is `../kind/name`; to the same kind is just `name`.
    -- If we are in the root, then it is `kind/name`.
-   function ldoc.ref_to_module(mod)
-      local name = mod.name
-      if name:match("^" .. kind .. "/") then name = name:gsub("^" .. kind .. "/", "") end
+   function ldoc.ref_to_module (mod)
       local base = ""
-      if module then
-          if module.type ~= type then base = (ldoc.pretty_urls and "../../" or "../") .. kind .. "/" end
+      mod = mod or ldoc.module
+      local kind, module = mod.kind, ldoc.module
+      local name = mod.name
+      if not ldoc.single then
+         if module then
+            if module.type ~= type then
+               base = (ldoc.pretty_urls and "../../" or "../")..kind.."/"
+            end
+         else
+            base = kind.."/"
+         end
       else
-          base = kind .. "/"
+         if mod == ldoc.single then
+            name = ldoc.output
+            if not ldoc.root then base = "../" end
+         elseif ldoc.root then
+            base = kind.."/"
+         else
+            if module.type ~= type then
+               base = "../"..kind.."/"
+            end
+         end
       end
-  
-      if ldoc.single then
-          if mod == ldoc.single then
-              name = ldoc.output
-              if not ldoc.root then base = "../" end
-          elseif ldoc.root then
-              base = kind .. "/"
-          else
-              if module.type ~= type then base = "../" .. kind .. "/" end
-          end
-      end
-  
-      local link = base .. name
       if ldoc.pretty_urls then
-          link = ldoc.to_pretty_url(link)
+         return ldoc.to_pretty_url(base..name).."/"
       else
-          link = link .. ".html"
+         return base..name..".html"
       end
-      return link
-  end
+   end
 
    function ldoc.include_file (file)
       local text,_ = utils.readfile(file)
