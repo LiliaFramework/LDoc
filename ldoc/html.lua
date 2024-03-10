@@ -129,37 +129,34 @@ function html.generate_output(ldoc, args, project)
    -- from the 'modules' etc directories. If we are in one of those directories,
    -- then linking to another kind is `../kind/name`; to the same kind is just `name`.
    -- If we are in the root, then it is `kind/name`.
-   function ldoc.ref_to_module (mod)
-      local base = "" -- default: same directory
+   function ldoc.ref_to_module(mod)
+      local base = ""
       mod = mod or ldoc.module
       local kind, module = mod.kind, ldoc.module
-      local name = mod.name -- default: name of module
+      local name = mod.name
       if not ldoc.single then
-         if module then -- we are in kind/
-            if module.type ~= type then -- cross ref to ../kind/
-               base = (ldoc.pretty_urls and '../../' or '../')..kind..'/'
-            end
-         else -- we are in root: index
-            base = kind..'/'
-         end
-      else -- single module
-         if mod == ldoc.single then
-            name = ldoc.output
-            if not ldoc.root then base = '../' end
-         elseif ldoc.root then -- ref to other kinds (like examples)
-            base = kind..'/'
-         else
-            if module.type ~= type then -- cross ref to ../kind/
-               base = "../"..kind.."/"
-            end
-         end
-      end
-      if ldoc.pretty_urls then
-         return ldoc.to_pretty_url(base..name)..'/'
+          if module then
+              if module.type ~= type then base = (ldoc.pretty_urls and "../../" or "../") .. kind .. "/" end
+          else
+              base = kind .. "/"
+          end
       else
-         return base..name..'.html'
+          if mod == ldoc.single then
+              name = ldoc.output
+              if not ldoc.root then base = "../" end
+          elseif ldoc.root then
+              base = kind .. "/"
+          else
+              if module.type ~= type then base = "../" .. kind .. "/" end
+          end
       end
-   end
+  
+      if ldoc.pretty_urls then
+          return ldoc.to_pretty_url(base .. name) .. "/"
+      else
+          return base .. name .. ".html"
+      end
+  end
 
    function ldoc.include_file (file)
       local text,_ = utils.readfile(file)
