@@ -130,17 +130,16 @@ function html.generate_output(ldoc, args, project)
    -- then linking to another kind is `../kind/name`; to the same kind is just `name`.
    -- If we are in the root, then it is `kind/name`.
    function ldoc.ref_to_module(mod)
-      local base = ""
-      mod = mod or ldoc.module
-      local kind, module = mod.kind, ldoc.module
       local name = mod.name
-      if not ldoc.single then
-          if module then
-              if module.type ~= type then base = (ldoc.pretty_urls and "../../" or "../") .. kind .. "/" end
-          else
-              base = kind .. "/"
-          end
+      if name:match("^" .. kind .. "/") then name = name:gsub("^" .. kind .. "/", "") end
+      local base = ""
+      if module then
+          if module.type ~= type then base = (ldoc.pretty_urls and "../../" or "../") .. kind .. "/" end
       else
+          base = kind .. "/"
+      end
+  
+      if ldoc.single then
           if mod == ldoc.single then
               name = ldoc.output
               if not ldoc.root then base = "../" end
@@ -151,11 +150,13 @@ function html.generate_output(ldoc, args, project)
           end
       end
   
+      local link = base .. name
       if ldoc.pretty_urls then
-          return ldoc.to_pretty_url(base .. name) .. "/"
+          link = ldoc.to_pretty_url(link)
       else
-          return base .. name .. ".html"
+          link = link .. ".html"
       end
+      return link
   end
 
    function ldoc.include_file (file)
