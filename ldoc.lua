@@ -163,7 +163,7 @@ local function setup_kinds ()
 
    ProjectMap:add_kind(lookup('module','Modules'))
    ProjectMap:add_kind(lookup('script','Scripts'))
-   ProjectMap:add_kind(lookup('classmod','Classes'))
+   ProjectMap:add_kind(lookup('classmod','Core - Classes'))
    ProjectMap:add_kind(lookup('topic','Topics'))
    ProjectMap:add_kind(lookup('example','Examples'))
    ProjectMap:add_kind(lookup('file','Source'))
