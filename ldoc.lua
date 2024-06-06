@@ -559,8 +559,9 @@ local function prettify_source_files(files,class,linemap)
       local ftype = file_types[ext]
       if ftype then
          local item = add_special_project_entity(f,{
-            class = class,
-         })
+            local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or 'topic'
+            class = value,
+         })   
          -- wrap prettify for this example so it knows which file to blame
          -- if there's a problem
          local lang = ext:sub(2)
@@ -627,10 +628,8 @@ if type(ldoc.readme) == 'table' then
       -- Extract relative path
       local relative_path = f:gsub("^.*lilia/", "")
 
-      print("PATH: "..relative_path)
       local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or 'topic'
 
-      print("VALUE: ".. value)
       local item, F = add_special_project_entity(f, {
          class = value
       }, markup.add_sections, ldoc.pretty_topic_names)
