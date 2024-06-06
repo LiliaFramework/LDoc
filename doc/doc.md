@@ -89,7 +89,7 @@ The order of tags is not important, but as always, consistency is useful.
 Here are all the tags known to LDoc:
 
   * **@module**  A Lua module containing functions and tables, which may be inside sections
-  * **@classmod** Like **@module** but describing a class
+  * **@aclassmod** Like **@module** but describing a class
   * **@submodule** A file containing definitions that you wish to put into the named _master_ module
   * **@script**  A Lua program
   * **@author** (multiple), **@copyright**, **@license**, **@release** only used for _project-level_ tags like **@module**
@@ -391,7 +391,7 @@ adjacent functions in different sections, so that you are not forced to order yo
 in a particular way.
 
 With 1.4, there is another option for documenting classes, which is the top-level type
-`classmod`. It is intended for larger classes which are implemented within one module,
+`aclassmod`. It is intended for larger classes which are implemented within one module,
 and the advantage that methods can be put into sections.
 
 Sometimes a module may logically span several files, which can easily happen with large
@@ -418,7 +418,7 @@ LDoc has a two-layer hierarchy; underneath the project, there are modules, scrip
 items like functions, tables, sections, and so forth.
 
 If you want to document scripts, then use **@script** instead of **@module**. New with 1.4 is
-**@classmod** which is a module which exports a single class.
+**@aclassmod** which is a module which exports a single class.
 
 ## See References
 
@@ -536,7 +536,7 @@ This comment does not have to have an explicit **@module** tag and LDoc continue
 respect the use of `module()`.
 
 There are three types of 'modules' (i.e. 'project-level'); `module`, a library
-loadable with `require()`, `script`, a program, and `classmod` which is a class
+loadable with `require()`, `script`, a program, and `aclassmod` which is a class
 implemented in a single module.
 
 There are some tags which are only useful in module comments: `author`,`copyright`,
@@ -689,7 +689,7 @@ See @{mylib.c} for the full example.
 
 1.4 introduces basic support for [Moonscript](http://moonscript.org). Moonscript module
 conventions are just the same as Lua, except for an explicit class construct.
-@{List.moon} shows how **@classmod** can declare modules that export one class, with metamethods
+@{List.moon} shows how **@aclassmod** can declare modules that export one class, with metamethods
 and methods put implicitly into a separate section.
 
 ## Basic Usage

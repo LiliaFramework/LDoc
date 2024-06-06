@@ -29,7 +29,7 @@ local known_tags = {
    fixme = 'S', todo = 'S', warning = 'S', raise = 'S', charset = 'S', within = 'S',
    ['local'] = 'N', export = 'N', private = 'N', constructor = 'N', static = 'N',include = 'S',
    -- project-level
-   module = 'T', script = 'T', example = 'T', topic = 'T', submodule='T', classmod='T', file='T',
+   module = 'T', script = 'T', example = 'T', topic = 'T', submodule='T', aclassmod='T', file='T',
    -- module-level
    ['function'] = 'T', lfunction = 'T', table = 'T', section = 'T', type = 'T',
    annotation = 'T', factory = 'T';
@@ -38,7 +38,7 @@ local known_tags = {
 known_tags._alias = {}
 known_tags._project_level = {
    module = true,
-   classmod = true,
+   aclassmod = true,
    script = true,
    example = true,
    topic = true,
@@ -51,11 +51,11 @@ known_tags._project_level = {
 known_tags._code_types = {
    module = true,
    script = true,
-   classmod = true,
+   aclassmod = true,
 }
 
 known_tags._presentation_names = {
-   classmod = 'Class',
+   aclassmod = 'Class',
 }
 
 known_tags._module_info = {
@@ -111,7 +111,7 @@ function doc.class_tag (tag)
 end
 
 -- how the type wants to be formally presented; e.g. 'module' becomes 'Module'
--- but 'classmod' will become 'Class'
+-- but 'aclassmod' will become 'Class'
 function doc.presentation_name (tag)
    local name = known_tags._presentation_names[tag]
    if not name then
@@ -238,7 +238,7 @@ function File:finish()
       elseif doc.project_level(item.type) then
          this_mod = item
          local package,mname,submodule
-         if item.type == 'module' or item.type == 'classmod' then
+         if item.type == 'module' or item.type == 'aclassmod' then
             -- if name is 'package.mod', then mod_name is 'mod'
             package,mname = split_dotted_name(this_mod.name)
             if self.args.merge then
@@ -331,8 +331,8 @@ function File:finish()
 
             -- right, this item was within a section or a 'class'
             local section_description
-            local classmod = this_mod.type == 'classmod'
-            if this_mod.section or classmod then
+            local aclassmod = this_mod.type == 'aclassmod'
+            if this_mod.section or aclassmod then
                local stype
                local this_section = this_mod.section
                if this_section then
@@ -341,13 +341,13 @@ function File:finish()
                end
                -- if it was a class, then if the name is unqualified then it becomes
                -- 'Class:foo' (unless flagged as being a constructor, static or not a function)
-               if doc.class_tag(stype) or classmod then
+               if doc.class_tag(stype) or aclassmod then
                   if not item.name:match '[:%.]' and not doc.ldoc.strip_metamethod_prefix then -- not qualified name!
-                     -- a class is either a @type section or a @classmod module. Is this a _method_?
-                     local class = classmod and this_mod.name or this_section.name
+                     -- a class is either a @type section or a @aclassmod module. Is this a _method_?
+                     local class = aclassmod and this_mod.name or this_section.name
                      local static = item.tags.constructor or item.tags.static or item.type ~= 'function'
                      -- methods and metamethods go into their own special sections...
-                     if classmod and item.type == 'function' then
+                     if aclassmod and item.type == 'function' then
                         local inferred_section
                         if item.name:match '^__' then
                            inferred_section = 'Metamethods'
@@ -1102,12 +1102,12 @@ function Module:process_see_reference (s,modules,istype)
    end
 
    -- `istype` means that we are looking up strictly in a _type_ context, so then only
-   -- allow `classmod` module references.
+   -- allow `aclassmod` module references.
    local function ismod(item)
       if item == nil then return false end
       if not istype then return true
       else
-         return item.type == 'classmod'
+         return item.type == 'aclassmod'
       end
    end
 
