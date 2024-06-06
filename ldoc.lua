@@ -559,6 +559,7 @@ local function prettify_source_files(files,class,linemap)
       local ftype = file_types[ext]
       if ftype then
          local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or 'topic'
+         print(value)
          local item = add_special_project_entity(f,{
             class = value,
          })   
