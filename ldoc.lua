@@ -627,7 +627,7 @@ end
 if type(ldoc.readme) == 'table' then
    process_file_list(ldoc.readme, '*.md', function(f)
       local item, F = add_special_project_entity(f,{
-         class = 'topic'
+         class = 'store'
       }, markup.add_sections, ldoc.pretty_topic_names)
       -- add_sections above has created sections corresponding to the 2nd level
       -- headers in the readme, which are attached to the File. So
