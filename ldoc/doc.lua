@@ -40,11 +40,11 @@ known_tags._project_level = {
    module = true,
    script = true,
    example = true,
+   classmod = true,
    topic = true,
    store = true,
    structures = true,
    submodule = true,
-   classmod = true,
    file = true,
 }
 
