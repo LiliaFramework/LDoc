@@ -623,9 +623,9 @@ end
 ldoc.readme = ldoc.readme or ldoc.topics
 if type(ldoc.readme) == 'string' then ldoc.readme = {ldoc.readme} end
 if type(ldoc.readme) == 'table' then
-   local value = (f:find("^docs/store/.+%.md$") and 'store') or (f:find("^docs/structures/.+%.md$") and 'structures') or 'topic'
-   print(value)
    process_file_list(ldoc.readme, '*.md', function(f)
+      local value = (f:find("^docs/store/.+%.md$") and 'store') or (f:find("^docs/structures/.+%.md$") and 'structures') or 'topic'
+      print(value)
       local item, F = add_special_project_entity(f, {
          class = value
       }, markup.add_sections, ldoc.pretty_topic_names)
