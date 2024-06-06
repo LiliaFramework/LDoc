@@ -626,6 +626,7 @@ if type(ldoc.readme) == 'table' then
    process_file_list(ldoc.readme, '*.md', function(f)
       local item, F = add_special_project_entity(f, {
          class = (f:find("^docs/store/.+%.md$") and 'store') or (f:find("^docs/structures/.+%.md$") and 'structures') or 'topic'
+         print(class)
       }, markup.add_sections, ldoc.pretty_topic_names)
 
       -- add_sections above has created sections corresponding to the 2nd level
