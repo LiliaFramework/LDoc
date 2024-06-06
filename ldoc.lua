@@ -621,31 +621,18 @@ if args.simple then
 end
 
 ldoc.readme = ldoc.readme or ldoc.topics
-if type(ldoc.readme) == 'string' then
-   ldoc.readme = {ldoc.readme}
-end
+if type(ldoc.readme) == 'string' then ldoc.readme = {ldoc.readme} end
 if type(ldoc.readme) == 'table' then
    process_file_list(ldoc.readme, '*.md', function(f)
-      local class
-      if f:find("^docs/store/.+%.md$") then
-         class = 'store' -- Override class for the store topic
-      elseif f:find("^docs/structures/.+%.md$") then
-         class = 'structures' -- Override class for the structures topic
-      else
-         class = 'topic' -- Default class for other topics
-      end
-
       local item, F = add_special_project_entity(f, {
-         class = class
+         class = (f:find("^docs/store/.+%.md$") and 'store') or (f:find("^docs/structures/.+%.md$") and 'structures') or 'topic'
       }, markup.add_sections, ldoc.pretty_topic_names)
 
       -- add_sections above has created sections corresponding to the 2nd level
       -- headers in the readme, which are attached to the File. So
       -- we pass the File to the postprocessor, which will insert the section markers
       -- and resolve inline @ references.
-      if ldoc.use_markdown_titles then
-         item.display_name = F.display_name
-      end
+      if ldoc.use_markdown_titles then item.display_name = F.display_name end
       item.postprocess = function(txt) return ldoc.markup(txt, F) end
    end)
 end
