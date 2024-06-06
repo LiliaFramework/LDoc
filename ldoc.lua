@@ -624,8 +624,13 @@ ldoc.readme = ldoc.readme or ldoc.topics
 if type(ldoc.readme) == 'string' then ldoc.readme = {ldoc.readme} end
 if type(ldoc.readme) == 'table' then
    process_file_list(ldoc.readme, '*.md', function(f)
-      print("PATH: "..f)
-      local value = (f:find("^docs/store/.+%.md$") and 'store') or (f:find("^docs/structures/.+%.md$") and 'structures') or 'topic'
+      -- Extract relative path
+      local relative_path = f:gsub("^.*lilia/", "")
+
+      print("PATH: "..relative_path)
+      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or 'topic'
+
+      print("VALUE: ".. value)
       local item, F = add_special_project_entity(f, {
          class = value
       }, markup.add_sections, ldoc.pretty_topic_names)
@@ -638,7 +643,6 @@ if type(ldoc.readme) == 'table' then
       item.postprocess = function(txt) return ldoc.markup(txt, F) end
    end)
 end
-
 
 -- extract modules from the file objects, resolve references and sort appropriately ---
 
