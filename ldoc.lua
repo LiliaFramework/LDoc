@@ -558,8 +558,8 @@ local function prettify_source_files(files,class,linemap)
       local ext = path.extension(f)
       local ftype = file_types[ext]
       if ftype then
+         local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or 'topic'
          local item = add_special_project_entity(f,{
-            local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or 'topic'
             class = value,
          })   
          -- wrap prettify for this example so it knows which file to blame
