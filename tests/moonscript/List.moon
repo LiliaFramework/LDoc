@@ -1,6 +1,6 @@
 ----
 -- A list class that wraps a table
--- @aclassmod List
+-- @classmod List
 import insert,concat,remove from table
 
 class List
