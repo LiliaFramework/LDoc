@@ -1,4 +1,4 @@
-# LDoc - A Lua Documentation Tool
+# LDoc - A Lua Documentation Tool - Lilia Version
 
 [![Luacheck](https://github.com/lunarmodules/LDoc/workflows/Luacheck/badge.svg)](https://github.com/lunarmodules/LDoc/actions)
 
