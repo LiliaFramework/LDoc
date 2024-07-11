@@ -43,6 +43,7 @@ known_tags._project_level = {
    example = true,
    topic = true,
    store = true,
+   modules = true,
    structures = true,
    submodule = true,
    file = true,

@@ -100,7 +100,7 @@ function html.generate_output(ldoc, args, project)
       local name = mod.name
       if args.unqualified and (mod.type == 'module' or mod.type == 'classmod') then -- leave out package
          name = name:gsub('^.-%.','')
-      elseif mod.type == 'topic' or mod.type == 'structures' or mod.type == 'store' or mod.type == 'information' then
+      elseif mod.type == 'topic' or mod.type == 'structures' or mod.type == 'store' or mod.type == 'information' or mod.type == 'modules' then
          if mod.display_name then
             name = mod.display_name
          else -- leave out md extension
