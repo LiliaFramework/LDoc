@@ -555,7 +555,7 @@ local function prettify_source_files(files,class,linemap)
    local prettify = require 'ldoc.prettify'
 
    process_file_list (files, '*.*', function(f)
-      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or ((f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules')  or 'topic'
+      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or ((f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules') or 'topic'
       local ext = path.extension(f)
       local ftype = file_types[ext]
       if ftype then
@@ -628,7 +628,7 @@ if type(ldoc.readme) == 'table' then
       -- Extract relative path
       local relative_path = f:gsub("^.*lilia/", "")
 
-      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or ((f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules')  or 'topic'
+      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or ((f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules') or 'topic'
 
       local item, F = add_special_project_entity(f, {
          class = value
