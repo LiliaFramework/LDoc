@@ -550,25 +550,21 @@ local function add_special_project_entity (f,tags,process,pretty)
    item.body = text
    return item, F
 end
-
-local function prettify_source_files(files,class,linemap)
-   local prettify = require 'ldoc.prettify'
-
-   process_file_list (files, '*.*', function(f)
-      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or ((f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules') or 'topic'
+local function prettify_source_files(files, class, linemap)
+   local prettify = require'ldoc.prettify'
+   process_file_list(files, '*.*', function(f)
+      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules') or 'topic'
       local ext = path.extension(f)
       local ftype = file_types[ext]
       if ftype then
-         local item = add_special_project_entity(f,{
+         local item = add_special_project_entity(f, {
             class = value,
-         })   
+         })
+
          -- wrap prettify for this example so it knows which file to blame
          -- if there's a problem
          local lang = ext:sub(2)
-         item.postprocess = function(code)
-            return '<h2>'..path.basename(f)..'</h2>\n' ..
-                prettify.lua(lang,f,code,0,true,linemap and linemap[f])
-         end
+         item.postprocess = function(code) return '<h2>' .. path.basename(f) .. '</h2>\n' .. prettify.lua(lang, f, code, 0, true, linemap and linemap[f]) end
       end
    end)
 end
@@ -628,7 +624,7 @@ if type(ldoc.readme) == 'table' then
       -- Extract relative path
       local relative_path = f:gsub("^.*lilia/", "")
 
-      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or ((f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules') or 'topic'
+      local value = (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/store/.+%.md$") and 'store') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/information/.+%.md$") and 'information') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/structures/.+%.md$") and 'structures') or (f:find("/home/runner/work/Lilia/Lilia/lilia/docs/modules/.+%.md$") and 'modules') or 'topic'
 
       local item, F = add_special_project_entity(f, {
          class = value
