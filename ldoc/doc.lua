@@ -221,199 +221,191 @@ function File:finish()
    local items = self.items
    local tagged_inside
    self.args = self.args or {}
+
    for item in items:iter() do
-      if mod_section_type(this_mod) == 'factory' and item.tags then
-         local klass = '@{'..this_mod.section.name..'}'
-         -- Factory constructors return the object type, and methods all have implicit self argument
-         if item.tags.constructor and not item.tags['return'] then
-            item.tags['return'] = List{klass}
-         elseif item.tags.param then
-            item.tags.param:put('self '..klass)
-         end
-      end
-      item:finish()
-      -- the default is not to show local functions in the documentation.
-      -- luacheck: push ignore 542
-      if not self.args.all and (item.type=='lfunction' or (item.tags and item.tags['local'])) then
-         -- don't add to the module --
-      elseif doc.project_level(item.type) then
-         this_mod = item
-         local package,mname,submodule
-         if item.type == 'module' or item.type == 'classmod' then
-            -- if name is 'package.mod', then mod_name is 'mod'
-            package,mname = split_dotted_name(this_mod.name)
-            if self.args.merge then
-               local mod,mf = self:find_module_in_files(item.name)
-               if mod then
-                  print('found master module',mf)
-                  this_mod = mod
-                  if this_mod.section then
-                     print '***closing section from master module***'
-                     this_mod.section = nil
-                  end
-                  submodule = true
-               end
-            end
-         elseif item.type == 'submodule' then
-            local _
-            submodule = true
-            this_mod,_ = self:find_module_in_files(item.name)
-            if this_mod == nil then
-               self:error("'"..item.name.."' not found for submodule")
-            end
-            tagged_inside = tools.this_module_name(self.base,self.filename)..' Functions'
-            this_mod.kinds:add_kind(tagged_inside, tagged_inside)
-         end
-         if not package then
-            mname = this_mod.name
-            package = ''
-         end
-         if not submodule then
-            this_mod.package = package
-            this_mod.mod_name = mname
-            this_mod.kinds = doc.ModuleMap() -- the iterator over the module contents
-            self.modules:append(this_mod)
-         end
-      elseif doc.section_tag(item.type) then
-         local display_name = item.name
-         if display_name == 'end' then
-            this_mod.section = nil
-         else
-            local summary = item.summary:gsub('%.$','')
-            local lookup_name
-            if doc.class_tag(item.type) then
-               display_name = 'Class '..item.name
-               lookup_name = item.name
-               item.module = this_mod
-               this_mod.items.by_name[item.name] = item
-            else
-               display_name = summary
-               lookup_name = summary
-               item.summary = ''
-            end
-            item.display_name = display_name
-            this_mod.section = item
-            -- the purpose of this little hack is to properly distinguish
-            -- between built-in kinds and any user-defined kinds.
-            this_mod.kinds:add_kind(display_name,display_name..' ',nil,item)
-            this_mod.sections:append(item)
-            this_mod.sections.by_name[lookup_name:gsub('%A','_')] = item
-         end
-      else
-         local to_be_removed
-         -- add the item to the module's item list
-         if this_mod then
-            -- new-style modules will have qualified names like 'mod.foo'
-            if item.name == nil then
-               self:error("item's name is nil")
-            end
-            local mod,fname = split_dotted_name(item.name)
-            -- warning for inferred unqualified names in new style modules
-            -- (retired until we handle methods like Set:unset() properly)
-            if not mod and not this_mod.old_style and item.inferred then
-               --item:warning(item.name .. ' is declared in global scope')
-            end
-            -- the function may be qualified with a module alias...
-            local alias = this_mod.tags.alias
-            if (alias and mod == alias) or mod == 'M' or mod == '_M' then
-               mod = this_mod.mod_name
-            end
-            -- if that's the mod_name, then we want to only use 'foo'
-            if mod == this_mod.mod_name and this_mod.tags.pragma ~= 'nostrip' then
-               item.name = fname
-            end
+       if mod_section_type(this_mod) == 'factory' and item.tags then
+           local klass = '@{'..this_mod.section.name..'}'
+           if item.tags.constructor and not item.tags['return'] then
+               item.tags['return'] = List{klass}
+           elseif item.tags.param then
+               item.tags.param:put('self '..klass)
+           end
+       end
+       item:finish()
 
-            if tagged_inside then
-               item.tags.within = tagged_inside
-            end
-            if item.tags.within then
-               init_within_section(this_mod,item.tags.within)
-            end
-
-            -- right, this item was within a section or a 'class'
-            local section_description
-            local classmod = this_mod.type == 'classmod'
-            if this_mod.section or classmod then
-               local stype
-               local this_section = this_mod.section
-               if this_section then
-                  item.section = this_section.display_name
-                  stype = this_section.type
-               end
-               -- if it was a class, then if the name is unqualified then it becomes
-               -- 'Class:foo' (unless flagged as being a constructor, static or not a function)
-               if doc.class_tag(stype) or classmod then
-                  if not item.name:match '[:%.]' and not doc.ldoc.strip_metamethod_prefix then -- not qualified name!
-                     -- a class is either a @type section or a @classmod module. Is this a _method_?
-                     local class = classmod and this_mod.name or this_section.name
-                     local static = item.tags.constructor or item.tags.static or item.type ~= 'function'
-                     -- methods and metamethods go into their own special sections...
-                     if classmod and item.type == 'function' then
-                        local inferred_section
-                        if item.name:match '^__' then
-                           inferred_section = 'Metamethods'
-                        elseif not static then
-                           inferred_section = 'Methods'
-                        end
-                        if inferred_section then
-                           item.tags.within = init_within_section(this_mod,inferred_section)
-                        end
-                     end
-                     -- Whether to use '.' or the language's version of ':' (e.g. \ for Moonscript)
-                     item.name = class..(not static and this_mod.file.lang.method_call or '.')..item.name
+       if not self.args.all and (item.type == 'lfunction' or (item.tags and item.tags['local'])) then
+           -- don't add to the module
+       elseif doc.project_level(item.type) then
+           this_mod = item
+           local package, mname, submodule
+           if item.type == 'module' or item.type == 'classmod' then
+               package, mname = split_dotted_name(this_mod.name)
+               if self.args.merge then
+                   local mod, mf = self:find_module_in_files(item.name)
+                   if mod then
+                       print('found master module', mf)
+                       this_mod = mod
+                       if this_mod.section then
+                           print '***closing section from master module***'
+                           this_mod.section = nil
+                       end
+                       submodule = true
                    end
-                  if stype == 'factory'  then
-                     if item.tags.private then to_be_removed = true
-                     elseif item.type == 'lfunction' then
-                        item.type = 'function'
-                     end
-                     if item.tags.constructor then
-                        item.section = item.type
-                     end
-                  end
                end
-               if this_section then
-                  --section_description = this_section.summary..' '..(this_section.description or '')
-                  --this_section.summary = ''
-               elseif item.tags.within then
-                  item.section = item.tags.within
+           elseif item.type == 'submodule' then
+               submodule = true
+               this_mod, _ = self:find_module_in_files(item.name)
+               if this_mod == nil then
+                   self:error("'"..item.name.."' not found for submodule")
+               end
+               tagged_inside = tools.this_module_name(self.base, self.filename) .. ' Functions'
+               this_mod.kinds:add_kind(tagged_inside, tagged_inside)
+           end
+           if not package then
+               mname = this_mod.name
+               package = ''
+           end
+           if not submodule then
+               this_mod.package = package
+               this_mod.mod_name = mname
+               this_mod.kinds = doc.ModuleMap()
+               self.modules:append(this_mod)
+           end
+       elseif doc.section_tag(item.type) then
+           local display_name = item.name
+           if display_name == 'end' then
+               this_mod.section = nil
+           else
+               local summary = item.summary:gsub('%.$', '')
+               local lookup_name
+               if doc.class_tag(item.type) then
+                   display_name = 'Class ' .. item.name
+                   lookup_name = item.name
+                   item.module = this_mod
+                   this_mod.items.by_name[item.name] = item
                else
-                  if item.type == 'function' or item.type == 'lfunction' then
-                     section_description = "Methods"
-                  end
-                  item.section = item.type
+                   display_name = summary
+                   lookup_name = summary
+                   item.summary = ''
                end
-            elseif item.tags.within then -- ad-hoc section...
-               item.section = item.tags.within
-            else -- otherwise, just goes into the default sections (Functions,Tables,etc)
-               item.section = item.type;
-            end
+               item.display_name = display_name
+               this_mod.section = item
+               this_mod.kinds:add_kind(display_name, display_name .. ' ', nil, item)
+               this_mod.sections:append(item)
+               this_mod.sections.by_name[lookup_name:gsub('%A', '_')] = item
+           end
+       else
+           local to_be_removed
+           if this_mod then
+               if item.name == nil then
+                   self:error("item's name is nil")
+               end
+               local mod, fname = split_dotted_name(item.name)
+               if not mod and not this_mod.old_style and item.inferred then
+                   --item:warning(item.name .. ' is declared in global scope')
+               end
+               local alias = this_mod.tags.alias
+               if (alias and mod == alias) or mod == 'M' or mod == '_M' then
+                   mod = this_mod.mod_name
+               end
+               if mod == this_mod.mod_name and this_mod.tags.pragma ~= 'nostrip' then
+                   item.name = fname
+               end
 
-            item.module = this_mod
-            if not to_be_removed then
-               local these_items = this_mod.items
-               these_items.by_name[item.name] = item
-               these_items:append(item)
-               this_mod.kinds:add(item,these_items,section_description)
-            end
+               if tagged_inside then
+                   item.tags.within = tagged_inside
+               end
+               if item.tags.within then
+                   init_within_section(this_mod, item.tags.within)
+               end
 
-            -- restore current section after a 'within'
-            if this_mod.enclosing_section then
-               this_mod.section = this_mod.enclosing_section
-               this_mod.enclosing_section = nil
-            end
+               local section_description
+               local classmod = this_mod.type == 'classmod'
+               if this_mod.section or classmod then
+                   local stype
+                   local this_section = this_mod.section
+                   if this_section then
+                       item.section = this_section.display_name
+                       stype = this_section.type
+                   end
+                   if doc.class_tag(stype) or classmod then
+                       if not item.name:match '[:%.]' and not doc.ldoc.strip_metamethod_prefix then
+                           local class = classmod and this_mod.name or this_section.name
+                           local static = item.tags.constructor or item.tags.static or item.type ~= 'function'
+                           if classmod and item.type == 'function' then
+                               local inferred_section
+                               if item.name:match '^__' then
+                                   inferred_section = 'Metamethods'
+                               elseif not static then
+                                   inferred_section = 'Methods'
+                               end
+                               if inferred_section then
+                                   item.tags.within = init_within_section(this_mod, inferred_section)
+                               end
+                           end
+                           item.name = class .. (not static and this_mod.file.lang.method_call or '.') .. item.name
+                       end
+                       if stype == 'factory' then
+                           if item.tags.private then to_be_removed = true
+                           elseif item.type == 'lfunction' then
+                               item.type = 'function'
+                           end
+                           if item.tags.constructor then
+                               item.section = item.type
+                           end
+                       end
+                   end
+                   if this_section then
+                       --section_description = this_section.summary..' '..(this_section.description or '')
+                       --this_section.summary = ''
+                   elseif item.tags.within then
+                       item.section = item.tags.within
+                   else
+                       if item.type == 'function' or item.type == 'lfunction' then
+                           section_description = "Methods"
+                       end
+                       item.section = item.type
+                   end
+               elseif item.tags.within then
+                   item.section = item.tags.within
+               else
+                   item.section = item.type
+               end
 
-         else
-            -- must be a free-standing function (sometimes a problem...)
-         end
-      end
-      -- luacheck: pop
-      item.names_hierarchy = require('pl.utils').split(
-        item.name,
-        '[.:]'
-      )
+               item.module = this_mod
+               if not to_be_removed then
+                   local these_items = this_mod.items
+                   these_items.by_name[item.name] = item
+                   these_items:append(item)
+                   this_mod.kinds:add(item, these_items, section_description)
+               end
+
+               if this_mod.enclosing_section then
+                   this_mod.section = this_mod.enclosing_section
+                   this_mod.enclosing_section = nil
+               end
+           else
+               -- must be a free-standing function (sometimes a problem...)
+           end
+       end
+       item.names_hierarchy = require('pl.utils').split(item.name, '[.:]')
+       
+       -- Handle the new "group" tag
+       if item.tags and item.tags.group then
+           local group_name = item.tags.group
+           if this_mod then
+               if not this_mod.group then
+                  this_mod.group = {}
+               end
+               if not this_mod.group[group_name] then
+                   this_mod.group[group_name] = {}
+               end
+               table.insert(this_mod.group[group_name], item)
+           end
+       end
    end
 end
+
 
 -- some serious hackery. We force sections into this 'module',
 -- and ensure that there is a dummy item so that the section
