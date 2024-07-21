@@ -215,7 +215,6 @@ local function init_within_section (mod,name)
    mod.section = nil
    return name
 end
-
 function File:finish()
    local this_mod
    local items = self.items
@@ -224,17 +223,17 @@ function File:finish()
 
    for item in items:iter() do
        if mod_section_type(this_mod) == 'factory' and item.tags then
-           local klass = '@{'..this_mod.section.name..'}'
+           local klass = '@{' .. this_mod.section.name .. '}'
            if item.tags.constructor and not item.tags['return'] then
                item.tags['return'] = List{klass}
            elseif item.tags.param then
-               item.tags.param:put('self '..klass)
+               item.tags.param:put('self ' .. klass)
            end
        end
        item:finish()
 
        if not self.args.all and (item.type == 'lfunction' or (item.tags and item.tags['local'])) then
-           -- don't add to the module
+           -- Don't add to the module
        elseif doc.project_level(item.type) then
            this_mod = item
            local package, mname, submodule
@@ -256,7 +255,7 @@ function File:finish()
                submodule = true
                this_mod, _ = self:find_module_in_files(item.name)
                if this_mod == nil then
-                   self:error("'"..item.name.."' not found for submodule")
+                   self:error("'" .. item.name .. "' not found for submodule")
                end
                tagged_inside = tools.this_module_name(self.base, self.filename) .. ' Functions'
                this_mod.kinds:add_kind(tagged_inside, tagged_inside)
@@ -385,27 +384,27 @@ function File:finish()
                    this_mod.enclosing_section = nil
                end
            else
-               -- must be a free-standing function (sometimes a problem...)
+               -- Must be a free-standing function (sometimes a problem...)
            end
        end
-       item.names_hierarchy = require('pl.utils').split(item.name, '[.:]')
-       
+
        -- Handle the new "group" tag
-       if item.tags and item.tags.group then
-           local group_name = item.tags.group
-           if this_mod then
-               if not this_mod.group then
-                  this_mod.group = {}
+       if this_mod then
+           local group_name = item.tags and item.tags.group
+           if group_name then
+               if not this_mod.groups then
+                   this_mod.groups = {}
                end
-               if not this_mod.group[group_name] then
-                   this_mod.group[group_name] = {}
+               if not this_mod.groups[group_name] then
+                   this_mod.groups[group_name] = {}
                end
-               table.insert(this_mod.group[group_name], item)
+               table.insert(this_mod.groups[group_name], item)
            end
        end
+
+       item.names_hierarchy = require('pl.utils').split(item.name, '[.:]')
    end
 end
-
 
 -- some serious hackery. We force sections into this 'module',
 -- and ensure that there is a dummy item so that the section
