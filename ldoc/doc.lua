@@ -389,8 +389,8 @@ function File:finish()
        end
 
        -- Handle the new "group" tag
-       if this_mod then
-           local group_name = item.tags and item.tags.group
+       if this_mod and item.tags then
+           local group_name = item.tags.group
            if group_name then
                if not this_mod.groups then
                    this_mod.groups = {}
@@ -405,6 +405,7 @@ function File:finish()
        item.names_hierarchy = require('pl.utils').split(item.name, '[.:]')
    end
 end
+
 
 -- some serious hackery. We force sections into this 'module',
 -- and ensure that there is a dummy item so that the section
