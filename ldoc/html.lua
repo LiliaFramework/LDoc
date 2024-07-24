@@ -202,8 +202,6 @@ function ldoc.source_ref (fun)
 
    function ldoc.display_name(item)
       if ldoc.custom_display_name_handler then
-         PrintTable(item)
-         print(ldoc.default_display_name)
         return ldoc.custom_display_name_handler(item, ldoc.default_display_name)
       else
         return ldoc.default_display_name(item)
